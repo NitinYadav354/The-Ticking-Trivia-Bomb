@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Ticking Trivia Bomb</title>
+</head>
+<body>
+    <h1>The Ticking Trivia Bomb</h1>
+    <p>Welcome to "The Ticking Trivia Bomb"! Test your knowledge and see if you can defuse the bomb by answering trivia questions correctly before bomb explodes!</p>
+    <h2>How to Play:</h2>
+    <ol>
+        <li>There will be a series of trivia questions.</li>
+        <li>You must answer each question correctly to move on to the next one.</li>
+        <li>You have a limited amount of time to answer maximum questions before the bomb "explodes".</li>
+        <li>For every correct answer, 5s added to your timer.</li>
+        <li>For every incorrect answer, 10s subtracted from your timer.</li>
+    </ol>
+    <h2 id="getReady">Get Ready!</h2>
+    <button id="start-game">Start Game</button>
+    <div id ="quiz-container" style="display:none;">
+        <h1 id="Question">Question text</h1>
+        <div id="options">
+            <input type="radio" id="option1" name="options" value="option1">
+            <label for="option1" class="option-label">Option 1</label><br>
+            <input type="radio" id="option2" name="options" value="option2">
+            <label for="option2" class="option-label">Option 2</label><br>
+            <input type="radio" id="option3" name="options" value="option3">
+            <label for="option3" class="option-label">Option 3</label><br>
+            <input type="radio" id="option4" name="options" value="option4">
+            <label for="option4" class="option-label">Option 4</label><br>
+        </div> 
+        <div>
+            <button id="submit-answer" type="button">Submit Answer</button>
+        </div>
+        <div>
+            <h2>Timer: <span id="timer">60</span> seconds</h2>
+        </div>
+    </div>
+    <div>
+        <h1 id="blast" style="display: none;">BOOM! 💥"</h1>
+    </div>
+
+    
+
+    
+    <script src="/script.js" type="module"></script>
+
+</body>
+</html>
