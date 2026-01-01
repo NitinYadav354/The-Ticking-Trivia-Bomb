@@ -14,12 +14,13 @@
         <li>You must answer each question correctly to move on to the next one.</li>
         <li>You have a limited amount of time to answer maximum questions before the bomb "explodes".</li>
         <li>For every correct answer, 5s added to your timer.</li>
-        <li>For every incorrect answer, 10s subtracted from your timer.</li>
+        <li>For every incorrect answer, 5s subtracted from your timer.</li>
     </ol>
     <h2 id="getReady">Get Ready!</h2>
     <button id="start-game">Start Game</button>
     <div id ="quiz-container" style="display:none;">
         <h1 id="Question">Question text</h1>
+        <h1 id="difficulty">difficulty</h1>
         <div id="options">
             <input type="radio" id="option1" name="options" value="option1">
             <label for="option1" class="option-label">Option 1</label><br>
@@ -32,13 +33,15 @@
         </div> 
         <div>
             <button id="submit-answer" type="button">Submit Answer</button>
+            <button id="pass-button" type="button">Pass Question</button>
         </div>
         <div>
-            <h2>Timer: <span id="timer">60</span> seconds</h2>
+            <h2>Timer: <span id="timer">120</span> seconds</h2>
         </div>
     </div>
     <div>
-        <h1 id="blast" style="display: none;">BOOM! 💥"</h1>
+        <h1 id="blast" style="display: none;">BOOM! 💥</h1>
+        <h1 id="score"></h1>
     </div>
 
     
