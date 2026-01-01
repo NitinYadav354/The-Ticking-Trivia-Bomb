@@ -10,6 +10,7 @@ const passbtn = document.getElementById("pass-button");
 const optionsLabels = document.querySelectorAll(".option-label");
 const submitButton = document.getElementById("submit-answer");
 const difficultyLevel = document.getElementById("difficulty");
+let isFetching = false;
 
 let nextQuestionData = {
     questionText: "",
@@ -65,22 +66,30 @@ async function getQuestion() {
     try {
         const response = await fetch("https://opentdb.com/api.php?amount=1&type=multiple");
         const data = await response.json();
+        console.log("Fetched question data:", data);
         return data;
     }
     catch (error) {
         document.getElementById("quiz-container").innerHTML = "<h2>Failed to load question. Please check your internet connection and try again.</h2>";
         console.error("Error fetching question:", error);
+        isFetching = false;
     }
     
 }
 
 async function loadNewQuestion() {
+    isFetching = true;
     const questionData = await getQuestion();
+    if (!questionData?.results){
+        isFetching = false;
+        return;
+    }
     nextQuestionData.difficulty = questionData.results[0].difficulty;
     nextQuestionData.questionText = questionData.results[0].question;
     nextQuestionData.correct_answer = questionData.results[0].correct_answer;
     nextQuestionData.options = questionData.results[0].incorrect_answers;
     nextQuestionData.options.push(nextQuestionData.correct_answer);
+    isFetching = false;
 }
 
 function displayQuestion(Question, optionsarr, difficulty) {
@@ -104,13 +113,21 @@ function displayQuestion(Question, optionsarr, difficulty) {
         option.checked = false;
     }
 }
-passbtn.addEventListener("click", function() {
+passbtn.addEventListener("click", async function() {
+    if (isFetching) {
+        return;
+    }
     currentQuestionData = {...nextQuestionData};
-    loadNewQuestion();
+    await loadNewQuestion();
     displayQuestion(currentQuestionData.questionText, currentQuestionData.options, currentQuestionData.difficulty);
 });
 
-submitButton.addEventListener("click", function() {
+submitButton.addEventListener("click", async function() {
+
+
+    if (isFetching) {
+        return;
+    }
     let selectedOption;
     for (const option of options) {
         if (option.checked) {
@@ -118,6 +135,7 @@ submitButton.addEventListener("click", function() {
             break;
         }
     }
+    if (!selectedOption) return;
     if (selectedOption === currentQuestionData.correct_answer) {
         console.log("Correct Answer!");
         if (difficultyLevel.innerHTML === "easy") {
@@ -141,6 +159,6 @@ submitButton.addEventListener("click", function() {
         timer.innerHTML = time;
     }
     currentQuestionData = {...nextQuestionData};
-    loadNewQuestion();
+    await loadNewQuestion();
     displayQuestion(currentQuestionData.questionText, currentQuestionData.options, currentQuestionData.difficulty);
 });
