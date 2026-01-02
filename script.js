@@ -59,7 +59,7 @@ startButton.addEventListener("click", async function() {
 
 async function getQuestion() {
     try {
-        const response = await fetch("https://opentdb.com/api.php?amount=10&type=multiple");
+        const response = await fetch("https://opentdb.com/api.php?amount=10&encode=base64&type=multiple");
         const data = await response.json();
         console.log("Fetched question data:", data);
         return data;
@@ -78,6 +78,16 @@ async function loadNewQuestion() {
     isFetching = false;
 }
 
+const decode = (val) => {
+    if (typeof val !== "string") return val;
+    try {
+        return atob(val);
+    } catch (e) {
+        console.error("Error decoding string:", e);
+        return val;
+    }
+};
+
 async function prepareQuestionData() {
     if (questionQueue.length === 0) {
         console.error("No questions available in the queue.");
@@ -86,10 +96,10 @@ async function prepareQuestionData() {
     const questionData = questionQueue.shift();
 
 
-    currentQuestionData.difficulty = questionData.difficulty;
-    currentQuestionData.questionText = (questionData.question);
-    currentQuestionData.correct_answer = (questionData.correct_answer);
-    currentQuestionData.options = questionData.incorrect_answers;
+    currentQuestionData.difficulty = decode(questionData.difficulty);
+    currentQuestionData.questionText = decode(questionData.question);
+    currentQuestionData.correct_answer = decode(questionData.correct_answer);
+    currentQuestionData.options = questionData.incorrect_answers.map(ans => decode(ans));
     currentQuestionData.options.push(currentQuestionData.correct_answer);
     console.log("Prepared question data:", currentQuestionData);
 }
