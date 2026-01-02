@@ -12,12 +12,7 @@ const submitButton = document.getElementById("submit-answer");
 const difficultyLevel = document.getElementById("difficulty");
 let isFetching = false;
 
-let nextQuestionData = {
-    questionText: "",
-    options: [],
-    difficulty: "",
-    correct_answer: ""
-};
+let questionQueue = [];
 
 let currentQuestionData = {
     questionText: "",
@@ -36,9 +31,9 @@ try {
         }
 
 
-startButton.addEventListener("click", function() {
-    currentQuestionData = {...nextQuestionData};
-    loadNewQuestion();
+startButton.addEventListener("click", async function() {
+    await prepareQuestionData();
+
     displayQuestion(currentQuestionData.questionText, currentQuestionData.options, currentQuestionData.difficulty);
 
     quizContainer.style.display = "block";
@@ -64,7 +59,7 @@ startButton.addEventListener("click", function() {
 
 async function getQuestion() {
     try {
-        const response = await fetch("https://opentdb.com/api.php?amount=1&type=multiple");
+        const response = await fetch("https://opentdb.com/api.php?amount=10&type=multiple");
         const data = await response.json();
         console.log("Fetched question data:", data);
         return data;
@@ -72,24 +67,31 @@ async function getQuestion() {
     catch (error) {
         document.getElementById("quiz-container").innerHTML = "<h2>Failed to load question. Please check your internet connection and try again.</h2>";
         console.error("Error fetching question:", error);
-        isFetching = false;
-    }
-    
+
+    } 
 }
 
 async function loadNewQuestion() {
     isFetching = true;
     const questionData = await getQuestion();
-    if (!questionData?.results){
-        isFetching = false;
-        return;
-    }
-    nextQuestionData.difficulty = questionData.results[0].difficulty;
-    nextQuestionData.questionText = questionData.results[0].question;
-    nextQuestionData.correct_answer = questionData.results[0].correct_answer;
-    nextQuestionData.options = questionData.results[0].incorrect_answers;
-    nextQuestionData.options.push(nextQuestionData.correct_answer);
+    questionQueue.push(...questionData.results);
     isFetching = false;
+}
+
+async function prepareQuestionData() {
+    if (questionQueue.length === 0) {
+        console.error("No questions available in the queue.");
+        await loadNewQuestion();
+    }
+    const questionData = questionQueue.shift();
+
+
+    currentQuestionData.difficulty = questionData.difficulty;
+    currentQuestionData.questionText = (questionData.question);
+    currentQuestionData.correct_answer = (questionData.correct_answer);
+    currentQuestionData.options = questionData.incorrect_answers;
+    currentQuestionData.options.push(currentQuestionData.correct_answer);
+    console.log("Prepared question data:", currentQuestionData);
 }
 
 function displayQuestion(Question, optionsarr, difficulty) {
@@ -115,17 +117,16 @@ function displayQuestion(Question, optionsarr, difficulty) {
 }
 passbtn.addEventListener("click", async function() {
     if (isFetching) {
+        console.log("Already fetching a new question. Please wait.");
         return;
     }
-    currentQuestionData = {...nextQuestionData};
-    await loadNewQuestion();
+    await prepareQuestionData();
     displayQuestion(currentQuestionData.questionText, currentQuestionData.options, currentQuestionData.difficulty);
 });
 
 submitButton.addEventListener("click", async function() {
-
-
     if (isFetching) {
+        console.log("Already fetching a new question. Please wait.");
         return;
     }
     let selectedOption;
@@ -158,7 +159,8 @@ submitButton.addEventListener("click", async function() {
         time -= 5;
         timer.innerHTML = time;
     }
-    currentQuestionData = {...nextQuestionData};
-    await loadNewQuestion();
+
+    await prepareQuestionData();
+
     displayQuestion(currentQuestionData.questionText, currentQuestionData.options, currentQuestionData.difficulty);
 });
