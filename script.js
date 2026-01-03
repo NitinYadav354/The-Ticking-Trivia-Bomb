@@ -4,6 +4,7 @@ const startButton = document.getElementById("start-game");
 const timer = document.getElementById("timer");
 const blast = document.getElementById("blast");
 const options = document.querySelectorAll("input[name='options']");
+const loadingText = document.getElementById("loading-text");
 let CorrectAnswer;
 let score = 0;
 const passbtn = document.getElementById("pass-button");
@@ -11,6 +12,9 @@ const optionsLabels = document.querySelectorAll(".option-label");
 const submitButton = document.getElementById("submit-answer");
 const difficultyLevel = document.getElementById("difficulty");
 let isFetching = false;
+const questionContainer = document.getElementById("Question");
+const restartButton = document.getElementById("restart-button");
+const introContainer = document.getElementById("intro-container");
 
 let questionQueue = [];
 
@@ -33,7 +37,7 @@ try {
 
 startButton.addEventListener("click", async function() {
     await prepareQuestionData();
-
+    introContainer.style.display = "none";
     displayQuestion(currentQuestionData.questionText, currentQuestionData.options, currentQuestionData.difficulty);
 
     quizContainer.style.display = "block";
@@ -52,6 +56,7 @@ startButton.addEventListener("click", async function() {
         blast.style.display = "block";
         const scoreDisplay = document.getElementById("score");
         scoreDisplay.innerHTML = "Your score is: " + score;
+        restartButton.style.display = "block";
     }
 }, 1000);
 
@@ -73,19 +78,21 @@ async function getQuestion() {
 
 async function loadNewQuestion() {
     isFetching = true;
+    loadingText.style.display = "block";
+
+
     const questionData = await getQuestion();
     questionQueue.push(...questionData.results);
+
+    loadingText.style.display = "none";
     isFetching = false;
 }
 
 const decode = (val) => {
-    if (typeof val !== "string") return val;
-    try {
-        return atob(val);
-    } catch (e) {
-        console.error("Error decoding string:", e);
-        return val;
-    }
+    val = atob(val);
+    let txt = document.createElement("textarea")
+    txt.innerHTML = val;
+    return txt.value;
 };
 
 async function prepareQuestionData() {
@@ -105,11 +112,19 @@ async function prepareQuestionData() {
 }
 
 function displayQuestion(Question, optionsarr, difficulty) {
-    const questionContainer = document.getElementById("Question");
+
     questionContainer.innerHTML = Question;
 
     difficultyLevel.innerHTML = difficulty;
-
+    if (difficulty === "easy") {
+        difficultyLevel.style.color = "green";
+    }
+    else if (difficulty === "medium") {
+        difficultyLevel.style.color = "orange";
+    }
+    else if (difficulty === "hard") {
+        difficultyLevel.style.color = "red";
+    }
     console.log("Options before shuffle:", optionsarr);
 
     for (let i = 3; i >= 0; i--) {
@@ -173,4 +188,8 @@ submitButton.addEventListener("click", async function() {
     await prepareQuestionData();
 
     displayQuestion(currentQuestionData.questionText, currentQuestionData.options, currentQuestionData.difficulty);
+});
+
+restartButton.addEventListener("click", function() {
+    location.reload();
 });
